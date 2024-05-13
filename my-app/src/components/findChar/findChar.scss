@@ -1,0 +1,45 @@
+.char__search {
+    background-color: white;
+    display: block;
+    width: 425px;
+    padding: 25px;
+    filter: drop-shadow(0 0 1rem gray);
+    margin-top: 20px;
+
+    .start__content {
+        display: flex;
+        align-items: center;
+        justify-content: space-evenly;
+
+
+        input {
+            height: 38px;
+            margin-top: 15px;
+            width: 250px;
+            padding: 5px;
+            margin-right: 24px;
+        }
+
+        button {
+            width: 101px;
+            height: 38px;
+            margin: 0;
+            margin-top: 15px;
+        }
+    }
+
+    .done__content {
+
+        button {
+            width: 101px;
+            height: 38px;
+            margin: 0;
+            margin-top: 15px;
+        }
+    }
+    
+    .error {
+        color: #e53e3e;
+        margin-top: 8px;
+    }
+}
