@@ -2,8 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import useMarvelService from '../../services/MarvelService';
-import Spinner from '../spiner/Spinner';
-import ErrorMessage from '../errorMessage/ErrorMessage';
+import setContent from '../../utils/setContent';
 
 // Хотелось бы вынести функцию по загрузке данных как отдельный аргумент
 // Но тогда мы потеряем связь со стэйтами загрузки и ошибки
@@ -12,7 +11,7 @@ import ErrorMessage from '../errorMessage/ErrorMessage';
 const SinglePage = ({Component, dataType}) => {
         const {id} = useParams();
         const [data, setData] = useState(null);
-        const {loading, error, getComic, getCharacterUseName, clearError} = useMarvelService();
+        const {process, setProcess, getComic, getCharacterByName, clearError} = useMarvelService();
 
         useEffect(() => {
             updateData()
@@ -23,27 +22,22 @@ const SinglePage = ({Component, dataType}) => {
 
             switch (dataType) {
                 case 'comic':
-                    getComic(id).then(onDataLoaded);
+                    getComic(id).then(onDataLoaded).then(() => setProcess('confirmed'));
                     break;
                 case 'character':
-                    getCharacterUseName(id).then(onDataLoaded);
+                    getCharacterByName(id).then(onDataLoaded).then(() => setProcess('confirmed'));
             }
         }
 
         const onDataLoaded = (data) => {
             setData(data) 
-            
         }
 
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error || !data) ? <Component data={data}/> : null;
+       
 
         return (
             <>
-                {errorMessage}
-                {spinner}
-                {content}
+                {setContent(process, Component, data)}
             </>
         )
 }

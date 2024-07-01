@@ -17,6 +17,7 @@ const SingleCharPage = lazy(() => import('../pages/SingleCharPage'))
 
 
 const App = () => {
+
         return (
             <Router>
                 <div className="app">

@@ -13,8 +13,9 @@ import {useParams, Link} from 'react-router-dom'
 
 const SingleCharPage = ({data}) => {
     
-    const {thumbnail, title, description} = data
-    
+    const {thumbnail, title, description} = data[0]
+    console.log(data, 'data') 
+
     return (
         <div className="single-comic">
                 <img src={thumbnail} alt={title} className="single-comic__img"/>

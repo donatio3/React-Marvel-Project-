@@ -1,81 +1,82 @@
-import './findChar.scss'
-import { Formik, Form, Field, ErrorMessage as FormikErrorMessage, ErrorMessage } from 'formik';
-import useMarvelService from '../../services/MarvelService'
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Formik, Form, Field, ErrorMessage as FormikErrorMessage } from 'formik';
+import * as Yup from 'yup';
+import {Link} from 'react-router-dom';
+import {useEffect, useState} from 'react';
+import { useRef } from 'react';
 
-import * as Yup from 'yup'
+import useMarvelService from '../../services/MarvelService';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
+import './findChar.scss';
 
 const FindChar = () => {
-    const [char, setChar] = useState(null)
+    const [char, setChar] = useState('');
+    const {process, setProcess, getCharacterByName, clearError} = useMarvelService();
 
-    const {getCharacterUseName, clearError, loading, error} = useMarvelService()
-
-    const searchChar = (name) => {
-        clearError();
-
-
-        getCharacterUseName(name)
-        .then((res) => {
-            console.log(res, 'rssssss')
-            setChar(res)
-        })
+    const onCharLoaded = (char) => {
+        setChar(char);
     }
 
-    const errorMessage = error ? <div className="char__search-critical-error"><ErrorMessage/></div> : null;
-    const result =!char ? null : char.length > 0 ?
-        <div>
-            <p className="done__title">There is! Visit {char[0].name} page? </p>
-                <Link to={`/characters/${char[0].name}`}>
-                    <button className="button button__secondary">
-                        <div className="inner">TO PAGE</div>
-                    </button>
-                </Link>
-        </div> : <p className="done__title">The character was not found. Check the name and try again </p>
-            
+    const updateChar = (name) => {
+        clearError();
+
+        getCharacterByName(name)
+            .then(onCharLoaded)
+            .then(() => setProcess('confirmed'));
+
+    }
+
+   
+
+    const errorMessage = process === 'error' ? <div className="char__search-critical-error"><ErrorMessage /></div> : null;
+
+    const results = !char ? null : char.length > 0 ?
+                    <div className="char__search-wrapper">
+                        <div className="char__search-success">There is! Visit {char[0].name} page?</div>
+                        <Link to={`/characters/${char[0].name}`} className="button button__secondary">
+                            <div className="inner">To page</div>
+                        </Link>
+                    </div> : 
+                    <div className="char__search-error">
+                        The character was not found. Check the name and try again
+                    </div>;
 
     return (
-        <>
-            <div className="char__search">
-                <p className="title">Or find a character by name:</p> 
-
-                <Formik
-                    initialValues = {{
-                    charName: '',
-                }} 
+        <div className="char__search-form">
+            <Formik
+                initialValues = {{
+                    charName: ''
+                }}
                 validationSchema = {Yup.object({
                     charName: Yup.string().required('This field is required')
                 })}
-                onSubmit={ ({charName}) => {
-                    searchChar(charName)
-                }} 
-                >
+                onSubmit = { ({charName}) => {
+                    updateChar(charName);
+                }}
+            >
+                <Form>
+                    <label className="char__search-label" htmlFor="charName">Or find a character by name:</label>
+                    <div className="char__search-wrapper">
+                        <Field 
+                            id="charName" 
+                            name='charName' 
+                            type='text' 
+                            placeholder="Enter name"/>
+                        <button 
+                            type='submit' 
+                            className="button button__main"
+                            disabled={''}>
+                            <div className="inner">find</div>
+                        </button>
+                    </div>
+                    <FormikErrorMessage component="div" className="char__search-error" name="charName" />
+                </Form>
+            </Formik>
 
-                    <Form action="character">
-                            <div className="start__content">
-                            <Field 
-                                id="charName" 
-                                name='charName' 
-                                type='text' 
-                                placeholder="Enter name"/>                                
-                                <FormikErrorMessage className="error" name="charName" component="div"/>
-
-                                <button type='submit' className="button button__main button__long">
-                                    <div className="inner">FIND</div>
-                                </button>
-                            </div>
-
-
-                            <div className="done__content">
-                               {errorMessage} 
-                               {result}
-                            </div>
-                    </Form> 
-                </Formik>
-            </div>     
-        </>
+                {errorMessage}
+                {results}
+        </div>
     )
 }
 
-export default FindChar
+export default FindChar;

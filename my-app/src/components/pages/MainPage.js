@@ -5,18 +5,20 @@ import RandomChar from "../randomChar/RandomChar";
 import CharList from "../charList/CharList";
 import CharInfo from "../charInfo/CharInfo";
 import ErrorBoundary from "../errorBoundary/ErrorBoundary";
+import FindChar from "../findChar/FindChar.js";
 
 import decoration from '../../resources/img/vision.png';
-import FindChar from "../findChar/FindChar.js";
 
 
 const MainPage = () => {
 
+    console.log('render mainPage')
     const [selectedChar, setChar] = useState(null)
 
     const onCharSelected = (id) => {
         setChar(id)
     }
+
 
     return (
         <>

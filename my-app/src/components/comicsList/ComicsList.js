@@ -3,19 +3,40 @@ import { Link } from "react-router-dom"
 
 import useMarvelService from "../../services/MarvelService"
 
+import Spinner from '../spiner/Spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+
 import avengers from '../../resources/img/Avengers.png'
 import avengersLogo from '../../resources/img/Avengers logo.png'
 import xMen from '../../resources/img/x-men.png';
 
 import './comics.scss'
-import Spinner from "../spiner/Spinner";
-import ErrorMessage from "../errorMessage/ErrorMessage";
+
+
+const setContent = (process, Component, newItemLoading) => {
+    switch (process) {
+        case 'waiting':
+            return <Spinner/>
+            break;
+        case "loading": 
+            return newItemLoading ? <Component/> : <Spinner/> 
+            break
+        case "confirmed":
+            return <Component/>
+            break
+        case 'error':
+            return <ErrorMessage/>
+            break
+        default: 
+            throw new Error('unexpected process state')
+    }
+}
 
 
 const ComicsList = () => {
     const [comicsList, setComicsList] = useState([])
     const [offset, setOffset] = useState(9)
-    const {loading, error, getComics, getAllComics} = useMarvelService()
+    const {process, setProcess, getComics, getAllComics} = useMarvelService()
     const [newItemLoading, setNewItemLoading] = useState(false)
     const [endedChar, setEndedChar] = useState(false)
 
@@ -28,6 +49,7 @@ const ComicsList = () => {
 
         getAllComics(offset)
         .then(updateComics)
+        .then(() => setProcess('confirmed'))
         setOffset(offset => offset + 9)
     }
     
@@ -61,11 +83,7 @@ const ComicsList = () => {
         )
     }
     
-    const items = renderItems(comicsList)
-
-    const loadingSpinner = loading && !newItemLoading ? <Spinner/> : null
-    const errorMessage = error ? <ErrorMessage/> : null
-    const content = items ? items : null
+    
 
     return (
         <>
@@ -87,13 +105,12 @@ const ComicsList = () => {
 
                 <div className="comics__list">
                     <div className="comics__grid">
-                        {content}
-                        {loadingSpinner}
-                        {errorMessage}
+                    {setContent(process, () => renderItems(comicsList), newItemLoading)}
+
                     </div>
                 </div>
 
-                <button style={{display: endedChar ? 'block' : 'none'}} disabled={newItemLoading} onClick={() => loadComics(null, false)} className="button button__main button__long">
+                <button style={{display: endedChar ? 'none' : 'block'}} disabled={newItemLoading} onClick={() => loadComics(null, false)} className="button button__main button__long">
                     <div className="inner">load more</div>
                 </button>    
             </div>       
